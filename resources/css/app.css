@@ -1,0 +1,7 @@
+/* Import Tailwind CSS */
+@import 'tailwindcss';
+
+/* Import Bootstrap CSS */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Your custom styles can go here */

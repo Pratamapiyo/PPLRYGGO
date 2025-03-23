@@ -1,0 +1,20 @@
+.category-block-link.text-danger, .tags-block-link.text-danger {
+    font-weight: bold;
+    color: #dc3545;
+    text-decoration: underline;
+}
+
+.btn-outline-danger {
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    background-color: transparent;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff;
+}
