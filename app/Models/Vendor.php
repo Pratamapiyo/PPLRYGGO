@@ -30,4 +30,9 @@ class Vendor extends Model
     {
         return $this->hasMany(EcoCycle::class, 'vendor_id'); // Ensure this relationship is correct
     }
+
+    public function vendorProducts()
+    {
+        return $this->hasMany(VendorProduct::class);
+    }
 }

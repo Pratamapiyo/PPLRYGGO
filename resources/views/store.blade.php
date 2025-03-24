@@ -9,7 +9,7 @@
         <div class="row">
 
             <div class="col-lg-12 col-12 text-center mb-4">
-                <h2>Our Products</h2>
+                <h2>Our Vendor Products</h2>
             </div>
 
             <style>
@@ -81,7 +81,7 @@
             </div>
             @empty
             <div class="col-12 text-center">
-                <p>No products available at the moment.</p>
+                <p>No vendor products available at the moment.</p>
             </div>
             @endforelse
 
@@ -181,9 +181,9 @@
                     setTimeout(() => location.reload(), 2000);
                 })
                 .catch(error => {
-                    // Show error message in the modal
+                    // Handle non-JSON responses or unexpected errors
                     feedbackModalLabel.textContent = 'Error';
-                    feedbackModalBody.textContent = error.message;
+                    feedbackModalBody.textContent = error.message || 'An unexpected error occurred.';
                     feedbackModal.show();
                 });
 

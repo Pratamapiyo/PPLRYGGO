@@ -6,13 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
+use App\Models\VendorProduct; // Import VendorProduct model
+use App\Models\VendorTransaction; // Import the new model
 
 class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::all(); // Fetch all products from the database
-        return view('store', compact('products')); // Pass products to the view
+        $products = \App\Models\VendorProduct::all(); // Fetch all vendor products
+        return view('store', compact('products')); // Pass vendor products to the view
     }
 
     public function create()
@@ -73,32 +75,42 @@ class ProductController extends Controller
         return redirect()->route('admin.store.index')->with('success', 'Product deleted successfully.');
     }
 
-    public function redeem(Request $request, Product $product)
+    public function redeem(Request $request, VendorProduct $vendorProduct)
     {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        if ($user->points < $product->points) {
-            return response()->json(['message' => 'Insufficient points.'], 400);
+            // Check if the user has enough points
+            if ($user->points < $vendorProduct->points) {
+                return response()->json(['message' => 'Insufficient points.'], 400);
+            }
+
+            // Check if the product is in stock
+            if ($vendorProduct->stock <= 0) {
+                return response()->json(['message' => 'Product out of stock.'], 400);
+            }
+
+            // Deduct points from the user
+            $user->points -= $vendorProduct->points;
+            $user->save();
+
+            // Reduce the product stock
+            $vendorProduct->stock -= 1;
+            $vendorProduct->save();
+
+            // Create a vendor transaction record
+            VendorTransaction::create([
+                'user_id' => $user->id,
+                'vendor_product_id' => $vendorProduct->id,
+                'points_used' => $vendorProduct->points,
+                'status' => 'Completed',
+            ]);
+
+            return response()->json(['message' => 'Product redeemed successfully.']);
+        } catch (\Exception $e) {
+            // Catch any unexpected errors and return a JSON response
+            return response()->json(['message' => 'An error occurred: ' . $e->getMessage()], 500);
         }
-
-        if ($product->stock <= 0) {
-            return response()->json(['message' => 'Product out of stock.'], 400);
-        }
-
-        $user->points -= $product->points;
-        $user->save();
-
-        $product->stock -= 1;
-        $product->save();
-
-        Transaction::create([
-            'user_id' => $user->id,
-            'product_id' => $product->id,
-            'points_used' => $product->points,
-            'status' => 'Completed',
-        ]);
-
-        return response()->json(['message' => 'Product redeemed successfully.']);
     }
 
     public function adminIndex()

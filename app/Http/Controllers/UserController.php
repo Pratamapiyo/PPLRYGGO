@@ -65,8 +65,11 @@ class UserController extends Controller
 
     public function pointHistory()
     {
-        $transactions = Auth::user()->transactions()->with('product')->latest()->paginate(10);
-        return view('pointhistory', compact('transactions'));
+        $user = Auth::user();
+        $transactions = $user->transactions()->with('product')->latest()->paginate(10);
+        $donations = $user->donations()->with('donationProgram')->latest()->paginate(10);
+
+        return view('pointhistory', compact('transactions', 'donations'));
     }
 
     // ...existing code...

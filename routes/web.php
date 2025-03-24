@@ -18,7 +18,7 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register']);
 
 Route::get('/', function () {
-    return view('landing'); // Update to use landing.blade.php
+    return view('landing'); 
 })->name('home');
 
 Route::get('/profile', function () {
@@ -124,12 +124,18 @@ Route::middleware(['auth', 'role:Vendor'])->group(function () {
     Route::get('/vendor/profile', [\App\Http\Controllers\VendorController::class, 'createOrEdit'])->name('vendor.profile');
     Route::post('/vendor/profile', [\App\Http\Controllers\VendorController::class, 'storeOrUpdate'])->name('vendor.profile.storeOrUpdate');
     Route::get('/vendor/requests', [\App\Http\Controllers\VendorController::class, 'viewRequests'])->name('vendor.requests');
+
+    Route::resource('vendor/products', \App\Http\Controllers\VendorProductController::class)->except(['show']);
 });
 
 Route::middleware(['auth', 'role:Vendor'])->group(function () {
     Route::get('/vendor-dashboard', function () {
         return view('vendor-dashboard');
     });
+    Route::get('/vendor/store', [\App\Http\Controllers\VendorProductController::class, 'index'])->name('vendor.store.index');
+    Route::post('/vendor/store', [\App\Http\Controllers\VendorProductController::class, 'store'])->name('vendor.store.store');
+    Route::put('/vendor/store/{vendorProduct}', [\App\Http\Controllers\VendorProductController::class, 'update'])->name('vendor.store.update');
+    Route::delete('/vendor/store/{vendorProduct}', [\App\Http\Controllers\VendorProductController::class, 'destroy'])->name('vendor.store.destroy');
 });
 
 Route::middleware(['auth', 'role:Client'])->group(function () {
@@ -145,6 +151,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/upload-picture', [UserController::class, 'uploadProfilePicture'])->name('profile.uploadPicture');
     Route::post('/profile/deactivate', [UserController::class, 'deactivateAccount'])->name('profile.deactivate');
 
-    Route::get('/store', [\App\Http\Controllers\ProductController::class, 'index'])->name('store.index'); // Merender store.blade.php
-    Route::post('/store/{product}/redeem', [\App\Http\Controllers\ProductController::class, 'redeem'])->name('store.redeem');
+    Route::get('/store', [\App\Http\Controllers\ProductController::class, 'index'])->name('store.index'); // Render store.blade.php
+    Route::post('/store/{vendorProduct}/redeem', [\App\Http\Controllers\ProductController::class, 'redeem'])->name('store.redeem'); // Update to use VendorProduct
 });

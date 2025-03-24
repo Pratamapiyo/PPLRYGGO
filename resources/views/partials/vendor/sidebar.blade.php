@@ -46,6 +46,14 @@
                         <span class="title">Pengajuan Daur Ulang</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="sidebar-link" href="{{ route('vendor.store.index') }}">
+                        <span class="icon-holder">
+                            <i class="c-green-500 ti-package"></i>
+                        </span>
+                        <span class="title">Manage Store</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

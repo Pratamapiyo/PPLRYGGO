@@ -43,4 +43,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Donation::class);
     }
+
+    public function vendor()
+    {
+        return $this->hasOne(Vendor::class);
+    }
 }
