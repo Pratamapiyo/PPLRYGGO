@@ -47,6 +47,7 @@ Route::middleware(['auth'])->group(function () {
     })->name('feedback.page');
     Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedbacks.index'); // Feedback dari pengguna lain
     Route::get('/my-feedback', [FeedbackController::class, 'userFeedbacks'])->name('feedbacks.user'); // Feedback pengguna sendiri
+    Route::post('/events/{event}/register', [\App\Http\Controllers\EventRegistrationController::class, 'store'])->name('event.register');
 });
 
 // Public routes for events

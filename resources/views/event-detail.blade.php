@@ -34,6 +34,32 @@
                             <div class="event-block-body">
                                 <p>{!! nl2br(e($event->description)) !!}</p>
                             </div>
+
+                            @if(Auth::check())
+                                @php
+                                    $isRegistered = $event->registrations->contains('user_id', Auth::id());
+                                @endphp
+
+                                @if($isRegistered)
+                                    <button type="button" class="btn btn-lg w-100 rounded-pill" style="background-color: var(--custom-btn-bg-color); color: white;" disabled>
+                                        Anda sudah daftar
+                                    </button>
+                                @else
+                                    <form action="{{ route('event.register', $event->id) }}" method="POST" class="mt-4">
+                                        @csrf
+                                        <button type="submit" class="btn btn-lg w-100 rounded-pill" style="background-color: var(--custom-btn-bg-color); color: white; transition: background-color 0.3s;">
+                                            Daftar
+                                        </button>
+                                    </form>
+                                @endif
+                            @else
+                                <p class="mt-4">
+                                    <a href="{{ route('login.form') }}" class="btn btn-lg w-100 rounded-pill text-center" style="background-color: var(--custom-btn-bg-color); color: white; transition: background-color 0.3s;">
+                                        Login untuk Daftar
+                                    </a>
+                                </p>
+                            @endif
+                            
                         </div>
                     </div>
                 </div>
@@ -41,5 +67,11 @@
         </div>
     </section>
 </main>
+
+<style>
+    .btn:hover {
+        background-color: var(--custom-btn-bg-hover-color) !important;
+    }
+</style>
 
 @endsection

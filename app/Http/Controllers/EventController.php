@@ -16,6 +16,7 @@ class EventController extends Controller
 
     public function show(Event $event)
     {
+        $event->load('registrations'); // Pastikan relasi registrations dimuat
         return view('event-detail', compact('event'));
     }
 
