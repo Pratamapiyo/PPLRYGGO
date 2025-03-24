@@ -8,6 +8,7 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\EcoNewsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\DonationController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.form');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
@@ -48,6 +49,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedbacks.index'); // Feedback dari pengguna lain
     Route::get('/my-feedback', [FeedbackController::class, 'userFeedbacks'])->name('feedbacks.user'); // Feedback pengguna sendiri
     Route::post('/events/{event}/register', [\App\Http\Controllers\EventRegistrationController::class, 'store'])->name('event.register');
+    Route::get('/profile/point-history', [\App\Http\Controllers\UserController::class, 'pointHistory'])->name('profile.pointHistory');
+    Route::post('/donations/{donationProgram}/store', [\App\Http\Controllers\DonationController::class, 'store'])->name('donations.store');
+    Route::post('/donations/{donationProgram}/donate', [DonationController::class, 'donate'])->name('donations.donate');
+    Route::get('/ecogive', [\App\Http\Controllers\DonationProgramController::class, 'userIndex'])->name('ecogive.index');
+    Route::get('/ecogive/{donationProgram}', [\App\Http\Controllers\DonationProgramController::class, 'show'])->name('ecogive.show');
 });
 
 // Public routes for events
@@ -94,6 +100,19 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
 
     Route::get('admin/econews/create', [EcoNewsController::class, 'create'])->name('admin.econews.create');
     Route::post('admin/econews/store', [EcoNewsController::class, 'store'])->name('admin.econews.store');
+
+    Route::resource('admin/products', \App\Http\Controllers\ProductController::class)->except(['show']);
+
+    Route::get('/admin/store', [\App\Http\Controllers\ProductController::class, 'adminIndex'])->name('admin.store.index');
+    Route::post('/admin/store', [\App\Http\Controllers\ProductController::class, 'store'])->name('admin.store.store');
+    Route::put('/admin/store/{product}', [\App\Http\Controllers\ProductController::class, 'update'])->name('admin.store.update');
+    Route::delete('/admin/store/{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])->name('admin.store.destroy');
+
+    // Routes for Donation Management
+    Route::get('/admin/donations', [\App\Http\Controllers\DonationProgramController::class, 'index'])->name('admin.donations.index');
+    Route::post('/admin/donations', [\App\Http\Controllers\DonationProgramController::class, 'store'])->name('admin.donations.store');
+    Route::put('/admin/donations/{donationProgram}', [\App\Http\Controllers\DonationProgramController::class, 'update'])->name('admin.donations.update');
+    Route::delete('/admin/donations/{donationProgram}', [\App\Http\Controllers\DonationProgramController::class, 'destroy'])->name('admin.donations.destroy');
 });
 
 Route::middleware(['auth', 'role:Vendor'])->group(function () {
@@ -125,4 +144,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
     Route::post('/profile/upload-picture', [UserController::class, 'uploadProfilePicture'])->name('profile.uploadPicture');
     Route::post('/profile/deactivate', [UserController::class, 'deactivateAccount'])->name('profile.deactivate');
+
+    Route::get('/store', [\App\Http\Controllers\ProductController::class, 'index'])->name('store.index'); // Merender store.blade.php
+    Route::post('/store/{product}/redeem', [\App\Http\Controllers\ProductController::class, 'redeem'])->name('store.redeem');
 });

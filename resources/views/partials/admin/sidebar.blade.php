@@ -70,6 +70,22 @@
                         <span class="title">Manajemen Events</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="sidebar-link" href="{{ route('admin.store.index') }}">
+                        <span class="icon-holder">
+                            <i class="c-red-500 ti-shopping-cart"></i>
+                        </span>
+                        <span class="title">Manajemen Store</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="sidebar-link" href="{{ route('admin.donations.index') }}">
+                        <span class="icon-holder">
+                            <i class="c-teal-500 ti-heart"></i>
+                        </span>
+                        <span class="title">Manajemen Donasi</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

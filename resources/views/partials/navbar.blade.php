@@ -27,7 +27,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#section_4">Store</a>
+                    <a class="nav-link {{ request()->routeIs('store.index') ? 'active' : '' }}" href="{{ route('store.index') }}">Store</a>
                 </li>
 
 
@@ -38,7 +38,7 @@
                     <ul class="dropdown-menu dropdown-menu-light" aria-labelledby="moreDropdown">
                         <li><a class="dropdown-item" href="{{ route('events.index') }}">Event Campaign</a></li>
                         <li><a class="dropdown-item" href="#section_6">Discussion Forum</a></li>
-                        <li><a class="dropdown-item" href="#section_7">EcoGive</a></li>
+                        <li><a class="dropdown-item" href="{{ route('ecogive.index') }}">EcoGive</a></li>
                         <li><a class="dropdown-item" href="#section_8">Nearest EcoHub</a></li>
                         <li><a class="dropdown-item" href="#section_9">Leaderboard</a></li>
                         <li><a class="dropdown-item" href="{{ route('feedbacks.index') }}">Feedback</a></li>
@@ -57,6 +57,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-light" aria-labelledby="userDropdown">
                         <li><a class="dropdown-item" href="{{ route('profile') }}">Profile</a></li>
+                        <li><a class="dropdown-item" href="{{ route('profile.pointHistory') }}">Point History</a></li>
                         <li>
                             <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">

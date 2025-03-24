@@ -63,5 +63,11 @@ class UserController extends Controller
         return view('rankings', compact('users'));
     }
 
+    public function pointHistory()
+    {
+        $transactions = Auth::user()->transactions()->with('product')->latest()->paginate(10);
+        return view('pointhistory', compact('transactions'));
+    }
+
     // ...existing code...
 }
