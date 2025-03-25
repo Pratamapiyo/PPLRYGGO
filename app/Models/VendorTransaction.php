@@ -9,7 +9,16 @@ class VendorTransaction extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'vendor_product_id', 'points_used', 'status'];
+    protected $fillable = ['user_id', 'vendor_product_id', 'points_used', 'final_price', 'status'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            $model->status = strtolower($model->status); // Ensure status is always stored in lowercase
+        });
+    }
 
     public function user()
     {

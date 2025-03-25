@@ -9,7 +9,7 @@ class VendorProduct extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['vendor_id', 'name', 'description', 'points', 'stock', 'image'];
+    protected $fillable = ['vendor_id', 'name', 'description', 'points', 'stock', 'image', 'price', 'max_redeemable_points'];
 
     public function vendor()
     {

@@ -34,13 +34,14 @@ class VendorProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'points' => 'required|integer|min:1',
+            'price' => 'required|integer|min:0',
+            'max_redeemable_points' => 'required|integer|min:0',
             'stock' => 'required|integer|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $vendor = Auth::user()->vendor;
-        $product = new VendorProduct($request->only(['name', 'description', 'points', 'stock']));
+        $product = new VendorProduct($request->only(['name', 'description', 'price', 'max_redeemable_points', 'stock']));
 
         if ($request->hasFile('image')) {
             $product->image = $request->file('image')->store('vendor_product_images', 'public');
@@ -61,7 +62,8 @@ class VendorProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'points' => 'required|integer|min:1',
+            'price' => 'required|integer|min:0',
+            'max_redeemable_points' => 'required|integer|min:0',
             'stock' => 'required|integer|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
@@ -72,7 +74,7 @@ class VendorProductController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $vendorProduct->fill($request->only(['name', 'description', 'points', 'stock']));
+        $vendorProduct->fill($request->only(['name', 'description', 'price', 'max_redeemable_points', 'stock']));
 
         if ($request->hasFile('image')) {
             $vendorProduct->image = $request->file('image')->store('vendor_product_images', 'public');

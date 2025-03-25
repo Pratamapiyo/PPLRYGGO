@@ -34,4 +34,9 @@ class EcoCycle extends Model
     {
         return $this->belongsTo(Vendor::class); // Vendor handling the request
     }
+
+    public function pointHistory()
+    {
+        return $this->belongsTo(User::class, 'user_id')->select(['id', 'name', 'points']);
+    }
 }

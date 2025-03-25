@@ -51,7 +51,15 @@
                         <span class="icon-holder">
                             <i class="c-green-500 ti-package"></i>
                         </span>
-                        <span class="title">Manage Store</span>
+                        <span class="title">Manajemen produk</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="sidebar-link" href="{{ route('vendor.buyer.index') }}">
+                        <span class="icon-holder">
+                            <i class="c-orange-500 ti-user"></i>
+                        </span>
+                        <span class="title">Manajemen Pembeli</span>
                     </a>
                 </li>
             </ul>

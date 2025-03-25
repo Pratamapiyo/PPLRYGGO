@@ -9,6 +9,7 @@ use App\Http\Controllers\EcoNewsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\DiscussionController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.form');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
@@ -32,6 +33,9 @@ Route::get('/econews/{id}', [App\Http\Controllers\NewsController::class, 'show']
 
 Route::get('/rankings', [UserController::class, 'rankings'])->name('rankings');
 
+Route::get('/point', [UserController::class, 'points'])->name('point');
+Route::post('/point/redeem/{product}', [\App\Http\Controllers\ProductController::class, 'redeemPointProduct'])->name('point.redeem');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/ecocycle', [\App\Http\Controllers\EcoCycleController::class, 'index'])->name('ecocycle.home');
     Route::post('/ecocycle/store', [\App\Http\Controllers\EcoCycleController::class, 'store'])->name('ecocycle.store');
@@ -54,11 +58,19 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/donations/{donationProgram}/donate', [DonationController::class, 'donate'])->name('donations.donate');
     Route::get('/ecogive', [\App\Http\Controllers\DonationProgramController::class, 'userIndex'])->name('ecogive.index');
     Route::get('/ecogive/{donationProgram}', [\App\Http\Controllers\DonationProgramController::class, 'show'])->name('ecogive.show');
+    Route::get('/transaction-history', [\App\Http\Controllers\UserController::class, 'transactionHistory'])->name('transaction.history');
 });
 
 // Public routes for events
 Route::get('/events', [\App\Http\Controllers\EventController::class, 'showPublicEvents'])->name('events.index');
 Route::get('/events/{event}', [\App\Http\Controllers\EventController::class, 'show'])->name('events.show');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/forum', [DiscussionController::class, 'index'])->name('forum');
+    Route::post('/forum', [DiscussionController::class, 'store'])->name('forum.create');
+    Route::post('/forum/{discussion}/reply', [DiscussionController::class, 'reply'])->name('forum.reply');
+    Route::post('/forum/{discussion}/like', [DiscussionController::class, 'like'])->name('forum.like');
+});
 
 Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/admin-dashboard', function () {
@@ -113,6 +125,13 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::post('/admin/donations', [\App\Http\Controllers\DonationProgramController::class, 'store'])->name('admin.donations.store');
     Route::put('/admin/donations/{donationProgram}', [\App\Http\Controllers\DonationProgramController::class, 'update'])->name('admin.donations.update');
     Route::delete('/admin/donations/{donationProgram}', [\App\Http\Controllers\DonationProgramController::class, 'destroy'])->name('admin.donations.destroy');
+
+    Route::get('/admin/redemption-management', [\App\Http\Controllers\ProductController::class, 'redemptionManagement'])->name('admin.redemption.management');
+    Route::put('/admin/transactions/{transaction}', [\App\Http\Controllers\ProductController::class, 'updateTransactionStatus'])->name('admin.transactions.update');
+
+    Route::get('/admin/forum', [\App\Http\Controllers\AdminForumController::class, 'index'])->name('admin.forum.manage');
+    Route::delete('/admin/forum/discussion/{discussion}', [\App\Http\Controllers\AdminForumController::class, 'deleteDiscussion'])->name('admin.forum.discussion.delete');
+    Route::delete('/admin/forum/reply/{reply}', [\App\Http\Controllers\AdminForumController::class, 'deleteReply'])->name('admin.forum.reply.delete');
 });
 
 Route::middleware(['auth', 'role:Vendor'])->group(function () {
@@ -136,6 +155,8 @@ Route::middleware(['auth', 'role:Vendor'])->group(function () {
     Route::post('/vendor/store', [\App\Http\Controllers\VendorProductController::class, 'store'])->name('vendor.store.store');
     Route::put('/vendor/store/{vendorProduct}', [\App\Http\Controllers\VendorProductController::class, 'update'])->name('vendor.store.update');
     Route::delete('/vendor/store/{vendorProduct}', [\App\Http\Controllers\VendorProductController::class, 'destroy'])->name('vendor.store.destroy');
+    Route::get('/vendor/buyer', [\App\Http\Controllers\VendorController::class, 'buyerManagement'])->name('vendor.buyer.index');
+    Route::put('/vendor/transactions/{transaction}', [\App\Http\Controllers\VendorTransactionController::class, 'update'])->name('vendor.transactions.update');
 });
 
 Route::middleware(['auth', 'role:Client'])->group(function () {

@@ -75,7 +75,7 @@
                         <span class="icon-holder">
                             <i class="c-red-500 ti-shopping-cart"></i>
                         </span>
-                        <span class="title">Manajemen Store</span>
+                        <span class="title">Produk Poin</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -84,6 +84,22 @@
                             <i class="c-teal-500 ti-heart"></i>
                         </span>
                         <span class="title">Manajemen Donasi</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="sidebar-link" href="{{ route('admin.redemption.management') }}">
+                        <span class="icon-holder">
+                            <i class="c-indigo-500 ti-receipt"></i>
+                        </span>
+                        <span class="title">Manajemen Redeem Poin</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="sidebar-link" href="{{ route('admin.forum.manage') }}">
+                        <span class="icon-holder">
+                            <i class="c-brown-500 ti-comments"></i>
+                        </span>
+                        <span class="title">Forum Management</span>
                     </a>
                 </li>
             </ul>

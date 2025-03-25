@@ -37,7 +37,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-light" aria-labelledby="moreDropdown">
                         <li><a class="dropdown-item" href="{{ route('events.index') }}">Event Campaign</a></li>
-                        <li><a class="dropdown-item" href="#section_6">Discussion Forum</a></li>
+                        <li><a class="dropdown-item" href="{{ route('forum') }}">Discussion Forum</a></li>
                         <li><a class="dropdown-item" href="{{ route('ecogive.index') }}">EcoGive</a></li>
                         <li><a class="dropdown-item" href="#section_8">Nearest EcoHub</a></li>
                         <li><a class="dropdown-item" href="#section_9">Leaderboard</a></li>
@@ -57,7 +57,9 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-light" aria-labelledby="userDropdown">
                         <li><a class="dropdown-item" href="{{ route('profile') }}">Profile</a></li>
+                        <li><a class="dropdown-item" href="{{ route('point') }}">Point</a></li>
                         <li><a class="dropdown-item" href="{{ route('profile.pointHistory') }}">Point History</a></li>
+                        <li><a class="dropdown-item" href="{{ route('transaction.history') }}">Purchase History</a></li>
                         <li>
                             <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">

@@ -1,12 +1,12 @@
 @extends('layouts.adminlayout')
 
-@section('title', 'Manajemen Store')
+@section('title', 'Manajemen produk poin')
 
 @section('content')
 <main class="main-content bgc-grey-100">
     <div id="mainContent">
         <div class="container-fluid">
-            <h4 class="c-grey-900 mT-10 mB-30">Manajemen Store</h4>
+            <h4 class="c-grey-900 mT-10 mB-30">Manajemen produk poin</h4>
             <div class="row">
                 <div class="col-md-12">
                     <div class="bgc-white bd bdrs-3 p-20 mB-20">

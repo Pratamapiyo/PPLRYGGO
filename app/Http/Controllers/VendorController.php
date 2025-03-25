@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Vendor;
 use App\Models\EcoCycle; // Ensure this line is present
 use App\Models\User;
+use App\Models\VendorTransaction; // Ensure this model is imported
 
 class VendorController extends Controller
 {
@@ -130,5 +131,20 @@ class VendorController extends Controller
             ->get();
 
         return view('vendor-PengajuanDaurUlang', compact('requests', 'history'));
+    }
+
+    public function buyerManagement()
+    {
+        $vendor = auth()->user()->vendor;
+
+        if (!$vendor) {
+            return redirect()->route('vendor.profile')->with('error', 'Anda harus melengkapi profil vendor terlebih dahulu.');
+        }
+
+        $transactions = VendorTransaction::whereHas('vendorProduct', function ($query) use ($vendor) {
+            $query->where('vendor_id', $vendor->id);
+        })->with(['user', 'vendorProduct'])->latest()->get();
+
+        return view('vendor-buyer', compact('transactions'));
     }
 }
