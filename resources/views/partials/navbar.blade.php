@@ -39,8 +39,8 @@
                         <li><a class="dropdown-item" href="{{ route('events.index') }}">Event Campaign</a></li>
                         <li><a class="dropdown-item" href="{{ route('forum') }}">Discussion Forum</a></li>
                         <li><a class="dropdown-item" href="{{ route('ecogive.index') }}">EcoGive</a></li>
-                        <li><a class="dropdown-item" href="#section_8">Nearest EcoHub</a></li>
-                        <li><a class="dropdown-item" href="#section_9">Leaderboard</a></li>
+                        <li><a class="dropdown-item" href="{{ route('nearestecohub') }}">Nearest EcoHub</a></li>
+                        <li><a class="dropdown-item" href="{{ route('leaderboard') }}">Leaderboard</a></li>
                         <li><a class="dropdown-item" href="{{ route('feedbacks.index') }}">Feedback</a></li>
                     </ul>
                 </li>

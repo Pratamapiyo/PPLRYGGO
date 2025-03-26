@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\VendorTransaction; // Ensure this is imported
+use App\Models\Vendor;
 
 class UserController extends Controller
 {
@@ -13,7 +14,9 @@ class UserController extends Controller
 
     public function profile()
     {
-        return view('profile'); // Ensure a 'profile.blade.php' view exists in the resources/views directory.
+        $user = auth()->user();
+        $vendor = $user->vendor; // Assuming a one-to-one relationship between User and Vendor
+        return view('profile', compact('user', 'vendor'));
     }
 
     public function updateProfile(Request $request)
@@ -21,6 +24,7 @@ class UserController extends Controller
         $user = Auth::user();
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->region = $request->region; // Add region update logic
 
         if ($request->password) {
             $user->password = Hash::make($request->password);
@@ -36,12 +40,10 @@ class UserController extends Controller
         $request->validate([
             'profile_picture' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-
         $user = Auth::user();
         $path = $request->file('profile_picture')->store('profile_pictures', 'public');
         $user->profile_picture = $path;
         $user->save();
-
         return redirect()->route('profile')->with('success', 'Profile picture updated successfully.');
     }
 
@@ -49,7 +51,6 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $user->delete();
-
         return redirect('/')->with('success', 'Account deactivated successfully.');
     }
 
@@ -58,9 +59,13 @@ class UserController extends Controller
         return view('edit-profile');
     }
 
-    public function rankings()
+    public function rankings(Request $request)
     {
-        $users = \App\Models\User::orderBy('points', 'desc')->get();
+        $query = \App\Models\User::orderBy('points', 'desc');
+        if ($request->has('region')) {
+            $query->where('region', $request->region); // Filter by region
+        }
+        $users = $query->get();
         return view('rankings', compact('users'));
     }
 
@@ -69,7 +74,6 @@ class UserController extends Controller
         $user = Auth::user();
         $transactions = $user->transactions()->with('product')->latest()->paginate(10);
         $donations = $user->donations()->with('donationProgram')->latest()->paginate(10);
-
         return view('pointhistory', compact('transactions', 'donations'));
     }
 
@@ -95,12 +99,9 @@ class UserController extends Controller
                 $history->points = floor($history->berat); // Calculate points based on weight
                 return $history;
             });
-
         $products = \App\Models\Product::where('stock', '>', 0)->get(); // Fetch products with stock > 0
         $transactions = \App\Models\Transaction::where('user_id', $user->id)->with('product')->latest()->get(); // Fetch redemption history
 
         return view('point', compact('user', 'pointHistories', 'products', 'transactions'));
     }
-
-    // ...existing code...
 }

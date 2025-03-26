@@ -10,6 +10,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\DiscussionController;
+use Illuminate\Http\Request;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.form');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
@@ -132,6 +133,13 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/admin/forum', [\App\Http\Controllers\AdminForumController::class, 'index'])->name('admin.forum.manage');
     Route::delete('/admin/forum/discussion/{discussion}', [\App\Http\Controllers\AdminForumController::class, 'deleteDiscussion'])->name('admin.forum.discussion.delete');
     Route::delete('/admin/forum/reply/{reply}', [\App\Http\Controllers\AdminForumController::class, 'deleteReply'])->name('admin.forum.reply.delete');
+
+    Route::get('/admin/vendor-management', [\App\Http\Controllers\VendorController::class, 'listVendors'])->name('admin.vendor.management');
+    Route::post('/admin/vendor/register', [\App\Http\Controllers\VendorController::class, 'registerVendor'])->name('admin.vendor.register');
+    Route::get('/admin/vendor/{id}/edit', [\App\Http\Controllers\VendorController::class, 'edit'])->name('admin.vendor.edit');
+    Route::put('/admin/vendor/{id}', [\App\Http\Controllers\VendorController::class, 'update'])->name('admin.vendor.update');
+    Route::put('/admin/vendor/{id}/toggle-status', [\App\Http\Controllers\VendorController::class, 'toggleStatus'])->name('admin.vendor.toggleStatus');
+    Route::delete('/admin/vendor/{id}', [\App\Http\Controllers\VendorController::class, 'delete'])->name('admin.vendor.delete');
 });
 
 Route::middleware(['auth', 'role:Vendor'])->group(function () {
@@ -175,3 +183,57 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/store', [\App\Http\Controllers\ProductController::class, 'index'])->name('store.index'); // Render store.blade.php
     Route::post('/store/{vendorProduct}/redeem', [\App\Http\Controllers\ProductController::class, 'redeem'])->name('store.redeem'); // Update to use VendorProduct
 });
+
+Route::get('/vendor/profile', function () {
+    return view('vendor-profile');
+})->name('vendor.profile');
+
+Route::get('/nearest-ecohub', function (Request $request) {
+    $query = \App\Models\Vendor::where('status', 'active');
+
+    if ($request->input('filter') === 'nearest') {
+        $query->orderBy('distance', 'asc'); // Order by nearest
+    } elseif ($request->input('filter') === 'farthest') {
+        $query->orderBy('distance', 'desc'); // Order by farthest
+    }
+
+    if ($request->input('spesialisasi')) {
+        $query->where('spesialisasi', $request->input('spesialisasi'));
+    }
+
+    $ecohubs = $query->get();
+    $spesialisasiOptions = \App\Models\Vendor::whereNotNull('spesialisasi')
+        ->distinct()
+        ->pluck('spesialisasi');
+
+    return view('nearestecohub', compact('ecohubs', 'spesialisasiOptions'));
+})->name('nearestecohub');
+
+Route::get('/ecohub/{id}', function ($id) {
+    $ecohub = \App\Models\Vendor::findOrFail($id);
+    return view('ecohub-detail', compact('ecohub'));
+})->name('ecohub.detail');
+
+Route::get('/leaderboard', function (Request $request) {
+    $query = \App\Models\User::whereDoesntHave('roles', function ($query) {
+        $query->whereIn('name', ['Admin', 'Vendor']); // Exclude Admin and Vendor roles
+    });
+
+    // Filter by region
+    if ($request->has('region') && $request->region) {
+        $query->where('region', $request->region);
+    }
+
+    // Limit results (Top 5/10 or all)
+    $limit = $request->get('limit', 'all');
+    if ($limit !== 'all') {
+        $query->limit((int) $limit);
+    }
+
+    $users = $query->orderBy('points', 'desc')->get();
+
+    // Get distinct regions for the filter dropdown
+    $regions = \App\Models\User::whereNotNull('region')->distinct()->pluck('region');
+
+    return view('leaderboard', compact('users', 'regions'));
+})->name('leaderboard');

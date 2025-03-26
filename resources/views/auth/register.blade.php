@@ -54,6 +54,10 @@
                         <div class="col-12 mt-3">
                             <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Confirm Password" required>
                         </div>
+
+                        <div class="col-12 mt-3">
+                            <input type="text" name="region" id="region" class="form-control" placeholder="Region (Asal Daerah)" value="{{ old('region') }}" required>
+                        </div>
                     </div>
 
                     <button type="submit" class="form-control mt-4">Register</button>

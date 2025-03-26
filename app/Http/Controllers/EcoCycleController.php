@@ -38,9 +38,6 @@ class EcoCycleController extends Controller
             'jadwal_pengambilan' => 'required|date|after:now', // Validasi jadwal pengambilan
         ]);
 
-        // Debugging: Log the vendor_id being submitted
-        \Log::info('Submitted Vendor ID: ' . $validated['vendor_id']);
-
         // Upload file foto
         if ($request->hasFile('foto')) {
             $path = $request->file('foto')->store('eco_cycles', 'public');
@@ -54,7 +51,7 @@ class EcoCycleController extends Controller
         // Buat record baru
         EcoCycle::create($validated);
 
-        return redirect()->route('ecocycle.home')->with('success', 'Pengajuan EcoCycle berhasil dibuat.');
+        return response()->json(['success' => true]);
     }
 
     // Menampilkan detail pengajuan tertentu

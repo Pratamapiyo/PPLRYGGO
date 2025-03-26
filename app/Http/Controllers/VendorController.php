@@ -33,14 +33,9 @@ class VendorController extends Controller
             'description' => 'nullable|string',
             'location' => 'required|string|max:255',
             'contact' => 'required|string|max:255',
-            // 'vendor_photo' => 'nullable|image|max:2048', // Jika menggunakan field vendor_photo
+            'distance' => 'nullable|numeric|min:0',
+            'spesialisasi' => 'nullable|string|max:255', // Validate spesialisasi
         ]);
-
-        // Jika Anda menghandle upload foto, contoh:
-        // if ($request->hasFile('vendor_photo')) {
-        //     $path = $request->file('vendor_photo')->store('vendors', 'public');
-        //     $validated['vendor_photo'] = $path;
-        // }
 
         Vendor::create($validated);
 
@@ -65,23 +60,37 @@ class VendorController extends Controller
     public function update(Request $request, $id)
     {
         $vendor = Vendor::findOrFail($id);
+        $user = $vendor->user;
+
         $validated = $request->validate([
             'business_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'location' => 'required|string|max:255',
             'contact' => 'required|string|max:255',
-            // 'vendor_photo' => 'nullable|image|max:2048',
+            'distance' => 'nullable|numeric|min:0',
+            'spesialisasi' => 'nullable|string|max:255', // Validate spesialisasi
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8',
         ]);
 
-        // Handle upload foto jika diperlukan:
-        // if ($request->hasFile('vendor_photo')) {
-        //     $path = $request->file('vendor_photo')->store('vendors', 'public');
-        //     $validated['vendor_photo'] = $path;
-        // }
+        // Update vendor details
+        $vendor->update([
+            'business_name' => $validated['business_name'],
+            'description' => $validated['description'],
+            'location' => $validated['location'],
+            'contact' => $validated['contact'],
+            'distance' => $validated['distance'],
+            'spesialisasi' => $validated['spesialisasi'], // Update spesialisasi
+        ]);
 
-        $vendor->update($validated);
+        // Update user details
+        $user->email = $validated['email'];
+        if (!empty($validated['password'])) {
+            $user->password = bcrypt($validated['password']);
+        }
+        $user->save();
 
-        return redirect()->route('vendor.index')->with('success', 'Data vendor berhasil diperbarui.');
+        return redirect()->route('admin.vendor.management')->with('success', 'Vendor updated successfully.');
     }
 
     // Hapus vendor
@@ -95,8 +104,8 @@ class VendorController extends Controller
 
     public function createOrEdit()
     {
-        $vendor = Vendor::where('user_id', auth()->id())->first();
-        return view('vendor.profile', compact('vendor'));
+        $vendor = auth()->user()->vendor; // Fetch the vendor profile for the logged-in user
+        return view('vendor-profile', compact('vendor'));
     }
 
     public function storeOrUpdate(Request $request)
@@ -146,5 +155,63 @@ class VendorController extends Controller
         })->with(['user', 'vendorProduct'])->latest()->get();
 
         return view('vendor-buyer', compact('transactions'));
+    }
+
+    public function listVendors()
+    {
+        $vendors = \App\Models\Vendor::with('user')->get(); // Fetch vendors with their associated user data
+        return view('Admin-vendormanagement', compact('vendors'));
+    }
+
+    public function registerVendor(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'business_name' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'contact' => 'required|string|max:255',
+            'distance' => 'nullable|numeric|min:0', // Validate distance
+        ]);
+
+        // Create the user
+        $user = \App\Models\User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
+        ]);
+
+        // Assign the "Vendor" role to the user
+        $user->assignRole('Vendor');
+
+        // Create the vendor profile
+        Vendor::create([
+            'user_id' => $user->id,
+            'business_name' => $validated['business_name'],
+            'location' => $validated['location'],
+            'contact' => $validated['contact'],
+            'distance' => $validated['distance'], // Save distance
+            'status' => 'active', // Default status
+        ]);
+
+        return redirect()->route('admin.vendor.management')->with('success', 'Vendor registered successfully.');
+    }
+
+    public function toggleStatus($id)
+    {
+        $vendor = Vendor::findOrFail($id);
+        $vendor->status = $vendor->status === 'active' ? 'inactive' : 'active';
+        $vendor->save();
+
+        return redirect()->route('admin.vendor.management')->with('success', 'Vendor status updated successfully.');
+    }
+
+    public function delete($id)
+    {
+        $vendor = Vendor::findOrFail($id);
+        $vendor->delete();
+
+        return redirect()->route('admin.vendor.management')->with('success', 'Vendor deleted successfully.');
     }
 }

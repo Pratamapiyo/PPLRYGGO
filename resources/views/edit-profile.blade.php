@@ -45,6 +45,10 @@
                                         <input type="email" name="email" id="email" class="form-control" value="{{ Auth::user()->email }}" required>
                                     </div>
                                     <div class="mb-3">
+                                        <label for="region" class="form-label">Region (Asal Daerah)</label>
+                                        <input type="text" name="region" id="region" class="form-control" value="{{ Auth::user()->region }}" required>
+                                    </div>
+                                    <div class="mb-3">
                                         <label for="password" class="form-label">New Password</label>
                                         <input type="password" name="password" id="password" class="form-control" placeholder="Leave blank to keep current password">
                                     </div>

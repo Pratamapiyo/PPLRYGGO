@@ -102,6 +102,14 @@
                         <span class="title">Forum Management</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="sidebar-link" href="{{ route('admin.vendor.management') }}">
+                        <span class="icon-holder">
+                            <i class="c-pink-500 ti-briefcase"></i>
+                        </span>
+                        <span class="title">Vendor Management</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

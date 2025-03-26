@@ -62,6 +62,14 @@
                         <span class="title">Manajemen Pembeli</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="sidebar-link" href="{{ route('vendor.profile') }}">
+                        <span class="icon-holder">
+                            <i class="c-purple-500 ti-id-badge"></i>
+                        </span>
+                        <span class="title">Profile</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

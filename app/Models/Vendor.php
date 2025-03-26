@@ -17,6 +17,8 @@ class Vendor extends Model
         'location',
         'contact',
         'status',
+        'distance',
+        'spesialisasi', // Add spesialisasi to fillable
         // 'vendor_photo', // Uncomment jika Anda menambahkan field ini di migration
     ];
 
