@@ -24,9 +24,9 @@
         <div class="container">
             <div class="row">
 
-                <div class="col-lg-7 col-12">
+                <div class="col-lg-7 col-12" id="news-container">
                     @foreach($newsItems as $news)
-                    <div class="news-block">
+                    <div class="news-block news-item">
                         <div class="news-block-top">
                             <a href="{{ route('econews.detail', ['id' => $news->id]) }}">
                                 <img src="{{ $news->image ? asset('storage/' . $news->image) : 'https://picsum.photos/seed/' . urlencode($news->title) . '/600/400' }}" class="news-image img-fluid" alt="{{ $news->title }}" style="width: 100%; height: 400px; object-fit: none;">
@@ -78,8 +78,8 @@
                 </div>
 
                 <div class="col-lg-4 col-12 mx-auto mt-4 mt-lg-0">
-                    <form class="custom-form search-form" action="#" method="post" role="form">
-                        <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+                    <form class="custom-form search-form" id="search-form" role="form">
+                        <input id="search-input" class="form-control" type="search" placeholder="Search" aria-label="Search">
 
                         <button type="submit" class="form-control">
                             <i class="bi-search"></i>
@@ -154,5 +154,46 @@
         </div>
     </section>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
+    const newsItems = document.querySelectorAll('.news-item');
+    
+    function performSearch() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        let foundAny = false;
+        
+        newsItems.forEach(item => {
+            const title = item.querySelector('.news-block-title').textContent.toLowerCase();
+            const body = item.querySelector('.news-block-body').textContent.toLowerCase();
+            const categories = Array.from(item.querySelectorAll('.news-category-block a')).map(a => a.textContent.toLowerCase());
+            
+            if (searchTerm === '' || 
+                title.includes(searchTerm) || 
+                body.includes(searchTerm) || 
+                categories.some(cat => cat.includes(searchTerm))) {
+                item.style.display = 'block';
+                foundAny = true;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Optional: Show a message if no results found
+        const noResultsMsg = document.getElementById('no-results-message');
+        if (noResultsMsg) {
+            noResultsMsg.style.display = foundAny ? 'none' : 'block';
+        }
+    }
+    
+    // Prevent form submission and perform search instead
+    searchForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        performSearch();
+    });
+});
+</script>
 
 @endsection
