@@ -12,21 +12,20 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Call the RoleSeeder first to create roles
-        // $this->call(RoleSeeder::class);
+        $this->call(RoleSeeder::class);
 
         // Call the UserSeeder to create users and assign roles
-        // $this->call(UserSeeder::class);
+        $this->call(UserSeeder::class);
 
         // Call the CategoriesSeeder to create categories
-        // $this->call(CategoriesSeeder::class);
+        $this->call(CategoriesSeeder::class);
 
         // Call the TagsSeeder to create tags
-        // $this->call(TagsSeeder::class);
+        $this->call(TagsSeeder::class);
 
         // Call the NewsSeeder to create news
-        // $this->call(NewsSeeder::class);
+        $this->call(NewsSeeder::class);
         $this->call([
-
             VendorSeeder::class,
         ]);
     }

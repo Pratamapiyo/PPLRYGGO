@@ -19,6 +19,7 @@
                                     <th>Name</th>
                                     <th>Description</th>
                                     <th>Price</th>
+                                    <th>Points</th>
                                     <th>Max Redeemable Points</th>
                                     <th>Stock</th>
                                     <th>Image</th>
@@ -32,6 +33,7 @@
                                         <td>{{ $product->name }}</td>
                                         <td>{{ $product->description }}</td>
                                         <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
+                                        <td>{{ $product->points }}</td>
                                         <td>{{ $product->max_redeemable_points }}</td>
                                         <td>{{ $product->stock }}</td>
                                         <td>
@@ -46,7 +48,8 @@
                                                 data-id="{{ $product->id }}" 
                                                 data-name="{{ $product->name }}" 
                                                 data-description="{{ $product->description }}" 
-                                                data-price="{{ $product->price }}" 
+                                                data-price="{{ $product->price }}"
+                                                data-points="{{ $product->points }}" 
                                                 data-max-redeemable-points="{{ $product->max_redeemable_points }}" 
                                                 data-stock="{{ $product->stock }}" 
                                                 data-image="{{ $product->image }}">Edit</button>
@@ -59,7 +62,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center">No products found. Please add a product.</td>
+                                        <td colspan="9" class="text-center">No products found. Please add a product.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -93,6 +96,10 @@
                     <div class="mb-3">
                         <label for="price" class="form-label">Price (Rp)</label>
                         <input type="number" class="form-control" id="price" name="price" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="points" class="form-label">Points</label>
+                        <input type="number" class="form-control" id="points" name="points" required>
                     </div>
                     <div class="mb-3">
                         <label for="max_redeemable_points" class="form-label">Max Redeemable Points</label>
@@ -141,6 +148,10 @@
                         <input type="number" class="form-control" id="edit_price" name="price" required>
                     </div>
                     <div class="mb-3">
+                        <label for="edit_points" class="form-label">Points</label>
+                        <input type="number" class="form-control" id="edit_points" name="points" required>
+                    </div>
+                    <div class="mb-3">
                         <label for="edit_max_redeemable_points" class="form-label">Max Redeemable Points</label>
                         <input type="number" class="form-control" id="edit_max_redeemable_points" name="max_redeemable_points" required>
                     </div>
@@ -170,6 +181,7 @@
         const name = button.getAttribute('data-name');
         const description = button.getAttribute('data-description');
         const price = button.getAttribute('data-price');
+        const points = button.getAttribute('data-points');
         const maxRedeemablePoints = button.getAttribute('data-max-redeemable-points');
         const stock = button.getAttribute('data-stock');
 
@@ -179,6 +191,7 @@
         form.querySelector('#edit_name').value = name;
         form.querySelector('#edit_description').value = description;
         form.querySelector('#edit_price').value = price;
+        form.querySelector('#edit_points').value = points;
         form.querySelector('#edit_max_redeemable_points').value = maxRedeemablePoints;
         form.querySelector('#edit_stock').value = stock;
     });

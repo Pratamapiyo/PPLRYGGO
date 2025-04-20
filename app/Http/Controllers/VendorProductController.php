@@ -35,13 +35,21 @@ class VendorProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|integer|min:0',
+            'points' => 'required|integer|min:0', // Add validation for points
             'max_redeemable_points' => 'required|integer|min:0',
             'stock' => 'required|integer|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $vendor = Auth::user()->vendor;
-        $product = new VendorProduct($request->only(['name', 'description', 'price', 'max_redeemable_points', 'stock']));
+        $product = new VendorProduct($request->only([
+            'name', 
+            'description', 
+            'price', 
+            'points', // Include points field
+            'max_redeemable_points', 
+            'stock'
+        ]));
 
         if ($request->hasFile('image')) {
             $product->image = $request->file('image')->store('vendor_product_images', 'public');
@@ -63,6 +71,7 @@ class VendorProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|integer|min:0',
+            'points' => 'required|integer|min:0', // Add validation for points
             'max_redeemable_points' => 'required|integer|min:0',
             'stock' => 'required|integer|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -74,7 +83,14 @@ class VendorProductController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $vendorProduct->fill($request->only(['name', 'description', 'price', 'max_redeemable_points', 'stock']));
+        $vendorProduct->fill($request->only([
+            'name', 
+            'description', 
+            'price', 
+            'points', // Include points field
+            'max_redeemable_points', 
+            'stock'
+        ]));
 
         if ($request->hasFile('image')) {
             $vendorProduct->image = $request->file('image')->store('vendor_product_images', 'public');

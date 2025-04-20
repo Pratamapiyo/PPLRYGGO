@@ -4,19 +4,23 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class AddPointsToUsersTable extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->integer('points')->default(0)->after('profile_picture');
-        });
+        // Since we see in 0001_01_01_000000_create_users_table.php that the 
+        // points column already exists, we can make this migration a no-op
+        // or you could delete this file
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('points');
-        });
+        // No action needed
     }
-};
+}
