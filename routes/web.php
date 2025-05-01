@@ -167,11 +167,6 @@ Route::middleware(['auth', 'role:Vendor'])->group(function () {
     Route::put('/vendor/transactions/{transaction}', [\App\Http\Controllers\VendorTransactionController::class, 'update'])->name('vendor.transactions.update');
 });
 
-Route::middleware(['auth', 'role:Client'])->group(function () {
-    Route::get('/client-dashboard', function () {
-        return view('client-dashboard');
-    });
-});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');

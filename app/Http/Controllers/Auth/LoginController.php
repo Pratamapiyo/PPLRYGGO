@@ -30,7 +30,7 @@ class LoginController extends Controller
             } elseif ($user->hasRole('Vendor')) {
                 return redirect('/vendor-dashboard');
             } elseif ($user->hasRole('Client')) {
-                return redirect('/client-dashboard');
+                return redirect('/');
             }
 
             return redirect('/'); // Default fallback
