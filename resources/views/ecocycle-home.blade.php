@@ -189,10 +189,80 @@
     </div>
 </div>
 
+<!-- Add this modal for displaying submission results -->
+<div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resultModalLabel">Notifikasi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="resultModalBody">
+                <!-- Content will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.getElementById('confirmSubmit').addEventListener('click', function() {
-        document.getElementById('ecocycleForm').submit();
+        // Instead of submitting the form directly, trigger the AJAX submission
+        submitFormWithAjax();
     });
+
+    function submitFormWithAjax() {
+        var formData = new FormData(document.getElementById('ecocycleForm'));
+        
+        $.ajax({
+            type: 'POST',
+            url: $('#ecocycleForm').attr('action'),
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                if (response.success) {
+                    // Show success message in modal
+                    $('#resultModalLabel').text('Sukses');
+                    $('#resultModalBody').html('<div class="alert alert-success">' + response.message + '</div>');
+                    
+                    // Clear the form
+                    $('#ecocycleForm')[0].reset();
+                    
+                    // Close the confirmation modal and show the result modal
+                    $('#confirmationModal').modal('hide');
+                    $('#resultModal').modal('show');
+                    
+                    // Reload the page after a short delay to show the updated list
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'Terjadi kesalahan saat memproses pengajuan Anda.';
+                
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    errorMessage = '<ul>';
+                    $.each(xhr.responseJSON.errors, function(key, value) {
+                        errorMessage += '<li>' + value + '</li>';
+                    });
+                    errorMessage += '</ul>';
+                }
+                
+                // Show error message in modal
+                $('#resultModalLabel').text('Error');
+                $('#resultModalBody').html('<div class="alert alert-danger">' + errorMessage + '</div>');
+                
+                // Close the confirmation modal and show the result modal
+                $('#confirmationModal').modal('hide');
+                $('#resultModal').modal('show');
+            }
+        });
+    }
 
     function showDetails(button) {
         const id = button.getAttribute('data-id');
