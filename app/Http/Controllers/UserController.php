@@ -22,17 +22,48 @@ class UserController extends Controller
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->region = $request->region; // Add region update logic
+        
+        // Validate basic information
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$user->id,
+            'region' => 'required|string|max:255',
+        ]);
 
-        if ($request->password) {
+        // Check if password is being updated
+        if ($request->filled('password')) {
+            // Validate password update
+            $request->validate([
+                'current_password' => 'required',
+                'password' => 'required|string|min:8',
+            ]);
+
+            // Verify the current password
+            if (!Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'The current password is incorrect.'])->withInput();
+            }
+
+            // Update password
             $user->password = Hash::make($request->password);
+            
+            // Update user information
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->region = $request->region;
+            $user->save();
+            
+            // Return to edit profile page with success message
+            return redirect()->route('profile.edit')->with('success', 'Profile and password updated successfully.');
         }
 
+        // If not updating password, just update other details
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->region = $request->region;
         $user->save();
 
-        return redirect()->route('profile')->with('success', 'Profile updated successfully.');
+        // Return to edit profile page with success message
+        return redirect()->route('profile.edit')->with('success', 'Profile updated successfully.');
     }
 
     public function uploadProfilePicture(Request $request)
@@ -47,10 +78,18 @@ class UserController extends Controller
         return redirect()->route('profile')->with('success', 'Profile picture updated successfully.');
     }
 
-    public function deactivateAccount()
+    public function deactivateAccount(Request $request)
     {
+        // Implement validation for the confirmation text
+        $request->validate([
+            'confirmation_text' => 'required|in:saya ingin tutup akun ini'
+        ], [
+            'confirmation_text.in' => 'The confirmation text you entered is incorrect.'
+        ]);
+        
         $user = Auth::user();
         $user->delete();
+        
         return redirect('/')->with('success', 'Account deactivated successfully.');
     }
 

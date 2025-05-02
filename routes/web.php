@@ -167,7 +167,6 @@ Route::middleware(['auth', 'role:Vendor'])->group(function () {
     Route::put('/vendor/transactions/{transaction}', [\App\Http\Controllers\VendorTransactionController::class, 'update'])->name('vendor.transactions.update');
 });
 
-
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
     Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
@@ -177,6 +176,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/store', [\App\Http\Controllers\ProductController::class, 'index'])->name('store.index'); // Render store.blade.php
     Route::post('/store/{vendorProduct}/redeem', [\App\Http\Controllers\ProductController::class, 'redeem'])->name('store.redeem'); // Update to use VendorProduct
+    Route::delete('/account/deactivate', [UserController::class, 'deactivateAccount'])->name('account.deactivate');
 });
 
 Route::get('/vendor/profile', function () {
