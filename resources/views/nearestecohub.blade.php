@@ -15,24 +15,50 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         z-index: 1;
         position: relative;
-    }
-      .location-controls {
+    }      .location-controls {
         background: linear-gradient(135deg, #4a90e2, #357abd);
         padding: 20px;
         border-radius: 12px;
         margin-bottom: 20px;
         color: white;
         box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
     
-    .location-status {
-        background: rgba(255,255,255,0.95);
+    .location-controls h5 {
+        color: #ffffff !important;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    }
+    
+    .location-controls p {
+        color: #f8f9fa !important;
+        font-weight: 500;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        opacity: 0.95;
+    }.location-status {
+        background: rgba(255,255,255,0.98);
         padding: 15px;
         border-radius: 8px;
         margin-top: 15px;
-        color: #333;
+        color: #2c3e50 !important;
         border-left: 4px solid #28a745;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border: 1px solid #e8f5e8;
+    }
+    
+    .location-status strong {
+        color: #1a252f !important;
+        font-weight: 600;
+    }
+    
+    .location-status .text-muted {
+        color: #495057 !important;
+    }
+    
+    .location-status .text-success {
+        color: #28a745 !important;
+        font-weight: 500;
     }
     
     .vendor-list {
