@@ -4,6 +4,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
 <style>
     .main-map {
         height: 500px;
@@ -108,8 +109,7 @@
         color: #6c757d;
         line-height: 1.4;
     }
-    
-    .vendor-spesialisasi {
+      .vendor-spesialisasi {
         background: #17a2b8;
         color: white;
         padding: 2px 8px;
@@ -117,6 +117,45 @@
         font-size: 0.8em;
         display: inline-block;
         margin-top: 5px;
+    }
+    
+    /* Route button styling */
+    .btn-info {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        border-color: #17a2b8;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-info:hover {
+        background: linear-gradient(135deg, #138496, #0f6674);
+        border-color: #138496;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+    }
+    
+    .btn-info:active {
+        transform: translateY(0);
+    }
+    
+    /* Route popup styling improvements */
+    .leaflet-popup-content {
+        margin: 12px 16px !important;
+        line-height: 1.4 !important;
+    }
+    
+    .popup-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        font-size: 1em;
+    }
+    
+    .popup-details p {
+        margin-bottom: 8px;
+        color: #6c757d;
+        font-size: 0.9em;
     }
     
     .filters-section {
@@ -143,11 +182,48 @@
         box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
         color: white;
     }
-    
-    .btn-location:disabled {
+      .btn-location:disabled {
         opacity: 0.7;
         transform: none;
         box-shadow: 0 3px 12px rgba(255, 107, 107, 0.2);
+    }
+    
+    /* Success state for location button */
+    .btn-success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 12px 24px;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-success:hover {
+        background: linear-gradient(135deg, #20c997, #17a2b8);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+        color: white;
+    }
+    
+    /* Warning state for location button */
+    .btn-warning {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 12px 24px;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 12px rgba(255, 193, 7, 0.3);
+    }
+    
+    .btn-warning:hover {
+        background: linear-gradient(135deg, #fd7e14, #dc3545);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(255, 193, 7, 0.4);
+        color: white;
     }
     
     .filter-controls .form-select {
@@ -253,11 +329,10 @@
             
             <!-- Location Controls -->
             <div class="col-lg-12 col-12">
-                <div class="location-controls">
-                    <div class="row align-items-center">
+                <div class="location-controls">                    <div class="row align-items-center">
                         <div class="col-md-8">
-                            <h5 class="mb-2">📍 Find Your Location</h5>
-                            <p class="mb-0">Click the button to detect your location and find the nearest EcoHub vendors</p>
+                            <h5 class="mb-2">📍 Your Location</h5>
+                            <p class="mb-0">We'll automatically detect your location to find the nearest EcoHub vendors. You can also manually refresh your location if needed.</p>
                         </div>
                         <div class="col-md-4 text-md-end text-center mt-3 mt-md-0">
                             <button id="get-location-btn" class="btn btn-location">
@@ -327,11 +402,10 @@
             
             <!-- Vendors List Column -->
             <div class="col-lg-4 col-12">
-                <h5 class="mb-3">📋 Available Vendors</h5>
-                <div id="vendors-list" class="vendor-list">
+                <h5 class="mb-3">📋 Available Vendors</h5>                <div id="vendors-list" class="vendor-list">
                     <div class="no-vendors">
                         <i class="bi bi-geo-alt text-muted" style="font-size: 2rem;"></i>
-                        <p class="mt-2 mb-0">Click "Get My Location" to find nearby vendors</p>
+                        <p class="mt-2 mb-0">Detecting your location to find nearby vendors...</p>
                     </div>
                 </div>
             </div>
@@ -341,6 +415,7 @@
 
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 <script>
 let vendorsMap;
 let userMarker;
@@ -348,6 +423,7 @@ let vendorMarkers = [];
 let userLocation = null;
 let allVendors = @json($ecohubs);
 let selectedVendorId = null;
+let routeControl = null;
 
 // Initialize map when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -373,6 +449,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load initial vendors data
     displayVendorsList(allVendors);
+    
+    // Automatically attempt to get user location
+    autoGetUserLocation();
 });
 
 function initializeMap() {
@@ -380,8 +459,8 @@ function initializeMap() {
     const defaultLat = -2.5489;
     const defaultLng = 118.0149;
       try {
-        // Initialize map
-        vendorsMap = L.map('vendors-map').setView([defaultLat, defaultLng], 5);
+        // Initialize map with closer zoom level
+        vendorsMap = L.map('vendors-map').setView([defaultLat, defaultLng], 7);
         
         // Add CartoDB Positron tiles (cleaner, less detailed style)
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -433,6 +512,29 @@ function getUserLocation() {
     btn.disabled = true;
     btn.innerHTML = '<i class="bi bi-arrow-clockwise spin me-2"></i>Getting Location...';
     
+    requestUserLocation(btn, locationStatus, true);
+}
+
+function autoGetUserLocation() {
+    const btn = document.getElementById('get-location-btn');
+    const locationStatus = document.getElementById('location-status');
+    
+    if (!navigator.geolocation) {
+        console.log('Geolocation is not supported by this browser');
+        updateLocationButton(btn, 'not-supported');
+        return;
+    }
+    
+    console.log('Automatically attempting to get user location...');
+    
+    // Update button state to show auto-detection
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-arrow-clockwise spin me-2"></i>Auto-detecting Location...';
+    
+    requestUserLocation(btn, locationStatus, false);
+}
+
+function requestUserLocation(btn, locationStatus, isManualRequest) {
     navigator.geolocation.getCurrentPosition(
         function(position) {
             userLocation = {
@@ -451,15 +553,20 @@ function getUserLocation() {
             // Calculate distances and update vendors
             calculateDistancesAndUpdate();
             
+            // Refresh vendor list to show route buttons
+            displayVendorsList(allVendors);
+            
             // Update location status
             reverseGeocode(userLocation.lat, userLocation.lng);
             
-            // Reset button
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Location Found';
+            // Update button state
+            updateLocationButton(btn, 'success');
             
             // Show location status
             locationStatus.style.display = 'block';
+            
+            // Enable route functionality message
+            console.log('Route functionality is now available for all vendors');
             
         },
         function(error) {
@@ -469,30 +576,64 @@ function getUserLocation() {
             switch(error.code) {
                 case error.PERMISSION_DENIED:
                     errorMessage += 'Please allow location access and try again.';
+                    updateLocationButton(btn, 'permission-denied');
                     break;
                 case error.POSITION_UNAVAILABLE:
                     errorMessage += 'Location information is unavailable.';
+                    updateLocationButton(btn, 'unavailable');
                     break;
                 case error.TIMEOUT:
                     errorMessage += 'Location request timed out.';
+                    updateLocationButton(btn, 'timeout');
                     break;
                 default:
                     errorMessage += 'An unknown error occurred.';
+                    updateLocationButton(btn, 'error');
                     break;
             }
             
-            alert(errorMessage);
-            
-            // Reset button
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-geo-alt-fill me-2"></i>Get My Location';
+            // Only show alert for manual requests
+            if (isManualRequest) {
+                alert(errorMessage);
+            } else {
+                console.log('Auto-location detection failed:', errorMessage);
+            }
         },
         {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 0
+            maximumAge: 300000 // Cache location for 5 minutes
         }
     );
+}
+
+function updateLocationButton(btn, status) {
+    btn.disabled = false;
+    
+    switch(status) {
+        case 'success':
+            btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Location Found';
+            btn.classList.add('btn-success');
+            btn.classList.remove('btn-location');
+            break;
+        case 'permission-denied':
+            btn.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i>Permission Needed';
+            btn.classList.add('btn-warning');
+            btn.classList.remove('btn-location');
+            break;
+        case 'unavailable':
+        case 'timeout':
+        case 'error':
+            btn.innerHTML = '<i class="bi bi-geo-alt-fill me-2"></i>Try Again';
+            break;
+        case 'not-supported':
+            btn.innerHTML = '<i class="bi bi-x-circle-fill me-2"></i>Not Supported';
+            btn.disabled = true;
+            break;
+        default:
+            btn.innerHTML = '<i class="bi bi-geo-alt-fill me-2"></i>Get My Location';
+            break;
+    }
 }
 
 function addUserMarker(lat, lng) {
@@ -500,17 +641,37 @@ function addUserMarker(lat, lng) {
     if (userMarker) {
         vendorsMap.removeLayer(userMarker);
     }
-      // Create user marker with red icon
+    
+    // Get current zoom level to determine marker size
+    const zoom = vendorsMap.getZoom();
+    const size = getMarkerSize(zoom, 'user');
+    
+    // Create user marker with red icon
     const userIcon = L.divIcon({
-        html: '<div style="background: #dc3545; border: 3px solid white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="bi bi-geo-alt-fill" style="color: white; font-size: 12px;"></i></div>',
-        iconSize: [26, 26],
-        iconAnchor: [13, 13],
+        html: `<div style="background: #dc3545; border: 3px solid white; border-radius: 50%; width: ${size}px; height: ${size}px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="bi bi-geo-alt-fill" style="color: white; font-size: ${Math.max(8, size * 0.6)}px;"></i></div>`,
+        iconSize: [size + 6, size + 6],
+        iconAnchor: [(size + 6) / 2, (size + 6) / 2],
         className: 'user-location-marker'
     });
     
     userMarker = L.marker([lat, lng], { icon: userIcon })
         .addTo(vendorsMap)
         .bindPopup('<div class="popup-title">📍 Your Location</div><div class="popup-details">You are here</div>');
+    
+    // Update marker size on zoom
+    vendorsMap.on('zoom', function() {
+        if (userMarker) {
+            const newZoom = vendorsMap.getZoom();
+            const newSize = getMarkerSize(newZoom, 'user');
+            const newIcon = L.divIcon({
+                html: `<div style="background: #dc3545; border: 3px solid white; border-radius: 50%; width: ${newSize}px; height: ${newSize}px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="bi bi-geo-alt-fill" style="color: white; font-size: ${Math.max(8, newSize * 0.6)}px;"></i></div>`,
+                iconSize: [newSize + 6, newSize + 6],
+                iconAnchor: [(newSize + 6) / 2, (newSize + 6) / 2],
+                className: 'user-location-marker'
+            });
+            userMarker.setIcon(newIcon);
+        }
+    });
 }
 
 function addVendorsToMap(vendors) {
@@ -520,33 +681,60 @@ function addVendorsToMap(vendors) {
     
     console.log('Adding vendors to map:', vendors.length, 'vendors');
     console.log('First vendor data:', vendors[0]);
-    
-    vendors.forEach(vendor => {
+      vendors.forEach(vendor => {
         console.log(`Vendor ${vendor.business_name}:`, vendor.user);
         if (vendor.user && vendor.user.latitude && vendor.user.longitude) {
             const lat = parseFloat(vendor.user.latitude);
             const lng = parseFloat(vendor.user.longitude);
             
             console.log(`Adding marker for ${vendor.business_name} at:`, lat, lng);
-              // Create vendor marker with green icon
+            
+            // Get current zoom level to determine marker size
+            const zoom = vendorsMap.getZoom();
+            const size = getMarkerSize(zoom, 'vendor');
+            
+            // Create vendor marker with green icon
             const vendorIcon = L.divIcon({
-                html: '<div style="background: #28a745; border: 3px solid white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="bi bi-building" style="color: white; font-size: 10px;"></i></div>',
-                iconSize: [24, 24],
-                iconAnchor: [12, 12],
+                html: `<div style="background: #28a745; border: 3px solid white; border-radius: 50%; width: ${size}px; height: ${size}px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="bi bi-building" style="color: white; font-size: ${Math.max(6, size * 0.5)}px;"></i></div>`,
+                iconSize: [size + 6, size + 6],
+                iconAnchor: [(size + 6) / 2, (size + 6) / 2],
                 className: 'vendor-location-marker'
             });
-            
-            const marker = L.marker([lat, lng], { icon: vendorIcon })
+              const marker = L.marker([lat, lng], { icon: vendorIcon })
                 .addTo(vendorsMap)
                 .bindPopup(createVendorPopup(vendor));
             
-            // Add click event to highlight vendor in list
+            // Add click event to highlight vendor in list and optionally show route
             marker.on('click', function() {
                 highlightVendorInList(vendor.id);
+                
+                // If user location is available and user has already shown interest in routing,
+                // we could auto-show route on marker click, but let's keep it optional via popup button
             });
+            
+            // Store vendor data in marker for reference
+            marker.vendorData = vendor;
             
             vendorMarkers.push(marker);
         }
+    });
+    
+    // Update vendor marker sizes on zoom
+    vendorsMap.off('zoom.vendors'); // Remove previous listener
+    vendorsMap.on('zoom.vendors', function() {
+        const newZoom = vendorsMap.getZoom();
+        vendorMarkers.forEach(marker => {
+            if (marker.vendorData) {
+                const newSize = getMarkerSize(newZoom, 'vendor');
+                const newIcon = L.divIcon({
+                    html: `<div style="background: #28a745; border: 3px solid white; border-radius: 50%; width: ${newSize}px; height: ${newSize}px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="bi bi-building" style="color: white; font-size: ${Math.max(6, newSize * 0.5)}px;"></i></div>`,
+                    iconSize: [newSize + 6, newSize + 6],
+                    iconAnchor: [(newSize + 6) / 2, (newSize + 6) / 2],
+                    className: 'vendor-location-marker'
+                });
+                marker.setIcon(newIcon);
+            }
+        });
     });
 }
 
@@ -559,6 +747,10 @@ function createVendorPopup(vendor) {
         ? `<br><strong>Specialization:</strong> ${vendor.spesialisasi}` 
         : '';
     
+    const routeButton = userLocation && vendor.calculated_distance 
+        ? `<button onclick="showRoute(${vendor.user.latitude}, ${vendor.user.longitude}, '${vendor.business_name}')" class="btn btn-sm btn-info me-1">📍 Show Route</button>`
+        : '';
+    
     return `
         <div class="popup-title">🏢 ${vendor.business_name}</div>
         <div class="popup-details">
@@ -566,9 +758,102 @@ function createVendorPopup(vendor) {
             <strong>Contact:</strong> ${vendor.contact}${distanceText}${spesialisasiText}
         </div>
         <div class="mt-2">
+            ${routeButton}
             <a href="/ecohub/${vendor.id}" class="btn btn-sm btn-success">View Details</a>
         </div>
     `;
+}
+
+function getMarkerSize(zoom, type) {
+    // Calculate marker size based on zoom level
+    // At very small zoom levels, markers should be much bigger for visibility
+    // At higher zoom levels, markers can be smaller
+    let baseSize;
+    
+    if (type === 'user') {
+        baseSize = 20;
+    } else {
+        baseSize = 18;
+    }
+    
+    if (zoom <= 4) {
+        return baseSize + 25; // Extra big at very small zoom for country/continent view
+    } else if (zoom <= 6) {
+        return baseSize + 20; // Much bigger at small zoom for state/region view
+    } else if (zoom <= 8) {
+        return baseSize + 15; // Bigger for city view
+    } else if (zoom <= 10) {
+        return baseSize + 8; // Slightly bigger for district view
+    } else if (zoom <= 12) {
+        return baseSize + 3; // Normal plus for neighborhood view
+    } else if (zoom <= 14) {
+        return baseSize; // Normal size for street view
+    } else {
+        return Math.max(baseSize - 3, 12); // Slightly smaller for detailed view but not too small
+    }
+}
+
+function showRoute(destLat, destLng, vendorName) {
+    if (!userLocation) {
+        alert('Please get your location first to show route.');
+        return;
+    }
+    
+    // Remove existing route
+    if (routeControl) {
+        vendorsMap.removeControl(routeControl);
+    }
+    
+    // Create route control
+    routeControl = L.Routing.control({
+        waypoints: [
+            L.latLng(userLocation.lat, userLocation.lng),
+            L.latLng(destLat, destLng)
+        ],
+        routeWhileDragging: false,
+        addWaypoints: false,
+        createMarker: function() {
+            return null; // Don't create additional markers
+        },
+        lineOptions: {
+            styles: [{
+                color: '#007bff',
+                weight: 6,
+                opacity: 0.8
+            }]
+        },
+        show: false, // Hide the instruction panel
+        collapsible: true,
+        formatter: new L.Routing.Formatter({
+            language: 'en'
+        })
+    }).addTo(vendorsMap);
+      // Add route info popup with better styling
+    const routePopup = L.popup()
+        .setLatLng([destLat, destLng])
+        .setContent(`
+            <div class="popup-title">🛣️ Route to ${vendorName}</div>
+            <div class="popup-details">
+                <p class="mb-2">Route calculated from your location</p>
+                <div class="d-flex gap-1">
+                    <button onclick="clearRoute()" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-x-circle me-1"></i>Clear Route
+                    </button>
+                    <button onclick="vendorsMap.fitBounds(routeControl.getBounds())" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-arrows-fullscreen me-1"></i>Fit Route
+                    </button>
+                </div>
+            </div>
+        `)
+        .openOn(vendorsMap);
+}
+
+function clearRoute() {
+    if (routeControl) {
+        vendorsMap.removeControl(routeControl);
+        routeControl = null;
+    }
+    vendorsMap.closePopup();
 }
 
 function calculateDistancesAndUpdate() {
@@ -663,9 +948,15 @@ function displayVendorsList(vendors) {
         const distanceHtml = vendor.calculated_distance 
             ? `<div class="vendor-distance">📍 ${vendor.calculated_distance.toFixed(2)} km away</div>`
             : '';
-        
-        const spesialisasiHtml = vendor.spesialisasi 
+          const spesialisasiHtml = vendor.spesialisasi 
             ? `<span class="vendor-spesialisasi">${vendor.spesialisasi}</span>`
+            : '';
+        
+        // Create route button if vendor has coordinates and user location is available
+        const routeButtonHtml = (vendor.user && vendor.user.latitude && vendor.user.longitude && userLocation)
+            ? `<button onclick="event.stopPropagation(); showRoute(${vendor.user.latitude}, ${vendor.user.longitude}, '${vendor.business_name.replace(/'/g, '\\\'')}')" class="btn btn-sm btn-info me-1" title="Show route to this vendor">
+                <i class="bi bi-geo-alt-fill me-1"></i>Get Directions
+               </button>`
             : '';
         
         html += `
@@ -678,6 +969,7 @@ function displayVendorsList(vendors) {
                     <div class="mt-1">${spesialisasiHtml}</div>
                 </div>
                 <div class="mt-2">
+                    ${routeButtonHtml}
                     <a href="/ecohub/${vendor.id}" class="btn btn-sm btn-outline-success">View Details</a>
                 </div>
             </div>
