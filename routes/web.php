@@ -184,7 +184,7 @@ Route::get('/vendor/profile', function () {
 })->name('vendor.profile');
 
 Route::get('/nearest-ecohub', function (Request $request) {
-    $query = \App\Models\Vendor::where('status', 'active');
+    $query = \App\Models\Vendor::with('user')->where('status', 'active');
 
     if ($request->input('filter') === 'nearest') {
         $query->orderBy('distance', 'asc'); // Order by nearest

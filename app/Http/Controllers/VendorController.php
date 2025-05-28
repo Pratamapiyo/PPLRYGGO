@@ -54,9 +54,7 @@ class VendorController extends Controller
     {
         $vendor = Vendor::findOrFail($id);
         return view('vendor.edit', compact('vendor'));
-    }
-
-    // Update data vendor
+    }    // Update data vendor
     public function update(Request $request, $id)
     {
         $vendor = Vendor::findOrFail($id);
@@ -67,7 +65,9 @@ class VendorController extends Controller
             'description' => 'nullable|string',
             'location' => 'required|string|max:255',
             'contact' => 'required|string|max:255',
-            'distance' => 'nullable|numeric|min:0',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'full_address' => 'nullable|string|max:500',
             'spesialisasi' => 'nullable|string|max:255', // Validate spesialisasi
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
@@ -79,12 +79,15 @@ class VendorController extends Controller
             'description' => $validated['description'],
             'location' => $validated['location'],
             'contact' => $validated['contact'],
-            'distance' => $validated['distance'],
             'spesialisasi' => $validated['spesialisasi'], // Update spesialisasi
         ]);
 
-        // Update user details
+        // Update user details including location
         $user->email = $validated['email'];
+        $user->latitude = $validated['latitude'];
+        $user->longitude = $validated['longitude'];
+        $user->full_address = $validated['full_address'];
+        
         if (!empty($validated['password'])) {
             $user->password = bcrypt($validated['password']);
         }
@@ -161,9 +164,7 @@ class VendorController extends Controller
     {
         $vendors = \App\Models\Vendor::with('user')->get(); // Fetch vendors with their associated user data
         return view('Admin-vendormanagement', compact('vendors'));
-    }
-
-    public function registerVendor(Request $request)
+    }    public function registerVendor(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -172,7 +173,10 @@ class VendorController extends Controller
             'business_name' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'contact' => 'required|string|max:255',
-            'distance' => 'nullable|numeric|min:0', // Validate distance
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'full_address' => 'nullable|string|max:500',
+            'spesialisasi' => 'nullable|string|max:255',
         ]);
 
         // Create the user
@@ -180,6 +184,9 @@ class VendorController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
+            'full_address' => $validated['full_address'],
         ]);
 
         // Assign the "Vendor" role to the user
@@ -191,7 +198,7 @@ class VendorController extends Controller
             'business_name' => $validated['business_name'],
             'location' => $validated['location'],
             'contact' => $validated['contact'],
-            'distance' => $validated['distance'], // Save distance
+            'spesialisasi' => $validated['spesialisasi'],
             'status' => 'active', // Default status
         ]);
 

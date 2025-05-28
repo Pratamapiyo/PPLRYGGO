@@ -58,10 +58,15 @@
                 opacity: 0;
             }
         }
-    </style>
-    <!-- Updated to use the correct paths -->
+    </style>    <!-- Updated to use the correct paths -->
     <script defer="defer" src="{{ asset('admin/assets/main.js') }}"></script>
     <link href="{{ asset('admin/assets/style.css') }}" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Additional Styles from views -->
+    @stack('styles')
 
     <!-- Remove Livewire styles -->
     {{-- @livewireStyles --}}
@@ -81,10 +86,11 @@
             @yield('content')
 
             <!-- ### $App Screen Footer ### -->
-            @include('partials.admin.footer')
-
-        </div>
+            @include('partials.admin.footer')        </div>
     </div>
+
+    <!-- Additional Scripts from views -->
+    @stack('scripts')
 
     <!-- Remove Livewire scripts -->
     {{-- @livewireScripts --}}
