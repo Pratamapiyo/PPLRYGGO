@@ -39,7 +39,7 @@ Route::post('/point/redeem/{product}', [\App\Http\Controllers\ProductController:
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/ecocycle', [\App\Http\Controllers\EcoCycleController::class, 'index'])->name('ecocycle.home');
-    Route::post('/ecocycle/store', [\App\Http\Controllers\EcoCycleController::class, 'store'])->name('ecocycle.store');
+    Route::post('/ecocycle/store', [App\Http\Controllers\EcoCycleController::class, 'store'])->name('ecocycle.store');
     Route::get('/ecocycle/{id}', [\App\Http\Controllers\EcoCycleController::class, 'show'])->name('ecocycle.show');
     Route::get('/ecocycle/details/{id}', [\App\Http\Controllers\EcoCycleController::class, 'getDetails'])->name('ecocycle.details');
     Route::put('/ecocycle/update/{id}', [\App\Http\Controllers\EcoCycleController::class, 'update'])->name('ecocycle.update');

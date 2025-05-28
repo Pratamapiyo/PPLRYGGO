@@ -49,9 +49,17 @@ class EcoCycleController extends Controller
         $validated['status'] = 'pending'; // Status default pengajuan
 
         // Buat record baru
-        EcoCycle::create($validated);
+        $ecoCycle = EcoCycle::create($validated);
 
-        return response()->json(['success' => true]);
+        if($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengajuan daur ulang berhasil dibuat!',
+                'data' => $ecoCycle
+            ]);
+        }
+        
+        return redirect()->route('ecocycle.index')->with('success', 'Pengajuan daur ulang berhasil dibuat!');
     }
 
     // Menampilkan detail pengajuan tertentu
