@@ -17,6 +17,9 @@ class User extends Authenticatable
         'password',
         'profile_picture',
         'region', // Add region here
+        'latitude',
+        'longitude',
+        'full_address',
     ];
 
     protected $hidden = [

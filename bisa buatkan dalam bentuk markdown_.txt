@@ -1,0 +1,329 @@
+﻿Dokumentasi Fitur Aplikasi (Berdasarkan PBI)
+Berikut adalah rincian fitur (PBI) beserta komponen-komponen terkait (Routes, Controllers, Views, Models) berdasarkan analisis gambar yang disediakan.
+PBI-001A: Registrasi Akun
+* Deskripsi: Fungsionalitas untuk memungkinkan pengguna baru mendaftar akun.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /register
+   * Method: GET (untuk menampilkan form registrasi), POST (untuk memproses data registrasi)
+* Controllers:
+   * File: app/Http/Controllers/Auth/RegisterController.php
+* Views:
+   * File: register.blade.php (Diasumsikan berdasarkan konvensi Laravel)
+   * Deskripsi: Halaman yang berisi formulir untuk memasukkan detail registrasi pengguna (nama, email, password, dll.).
+* Models:
+   * File: User.php (Diasumsikan)
+   * Deskripsi: Model yang merepresentasikan data pengguna dan berinteraksi dengan tabel users.
+* Migrations:
+   * File: database/migrations/0001_01_01_000000_create_users_table.php
+   * Tabel: users
+   * Kolom: name, email, password, phone, address, points, remember_token, timestamps
+PBI-001B: Login dengan Akun Terdaftar
+* Deskripsi: Fungsionalitas untuk memungkinkan pengguna yang sudah terdaftar masuk ke dalam sistem.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /login
+   * Method: GET (untuk menampilkan form login), POST (untuk memproses data login)
+   * Endpoint: /logout
+   * Method: POST (untuk keluar dari sesi login)
+* Controllers:
+   * File: app/Http/Controllers/Auth/LoginController.php
+* Views:
+   * File: login.blade.php (Diasumsikan berdasarkan konvensi Laravel)
+   * Deskripsi: Halaman yang berisi formulir untuk memasukkan kredensial login (email/username dan password).
+* Middleware:
+   * File: app/Http/Middleware/Authenticate.php
+   * Deskripsi: Middleware standar Laravel untuk melindungi route yang memerlukan autentikasi.
+* Models:
+   * (Umumnya menggunakan User.php untuk validasi kredensial)
+* Migrations:
+   * File: database/migrations/0001_01_01_000000_create_users_table.php (Tabel users untuk data pengguna)
+   * File: database/migrations/0001_01_01_000000_create_sessions_table.php (untuk tabel sessions jika menggunakan driver session database)
+   * Tabel: sessions
+   * Kolom: id, user_id, ip_address, user_agent, payload, last_activity
+PBI-001C: Reset/Update Password Akun
+* Deskripsi: Fungsionalitas untuk memungkinkan pengguna mengubah password akun mereka.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /profile/update-password (Diasumsikan)
+   * Method: PUT
+* Controllers:
+   * File: app/Http/Controllers/UserController.php
+   * Method: updateProfile (Menangani update password sebagai bagian dari update profil)
+* Views:
+   * File: resources/views/edit-profile.blade.php
+   * Deskripsi: Berisi formulir atau bagian formulir untuk memperbarui password.
+* Models:
+   * File: User.php
+   * Deskripsi: Model yang bertanggung jawab untuk menangani hashing password menggunakan Hash::make.
+* Migrations:
+   * File: database/migrations/0001_01_01_000000_create_password_reset_tokens_table.php (untuk fitur reset password via email)
+   * Tabel: password_reset_tokens
+   * Kolom: email, token, created_at
+   * File: database/migrations/0001_01_01_000000_create_users_table.php (untuk menyimpan password yang sudah di-hash di tabel users)
+PBI-002A: Edit Profile Information
+* Deskripsi: Fungsionalitas untuk memungkinkan pengguna mengubah informasi profil mereka (nama, email, dll.).
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /profile/update
+   * Method: PUT
+* Controllers:
+   * File: app/Http/Controllers/UserController.php
+   * Method: updateProfile (Menangani update nama, email, dan password)
+* Views:
+   * File: resources/views/edit-profile.blade.php
+   * Deskripsi: Berisi formulir untuk mengedit informasi profil pengguna.
+* Models:
+   * File: User.php
+   * Deskripsi: Model yang bertanggung jawab untuk menangani update data pengguna.
+* Migrations:
+   * File: database/migrations/0001_01_01_000000_create_users_table.php
+   * Tabel: users
+   * Kolom: name, email, password (Kolom yang dapat diupdate melalui fitur ini)
+PBI-002B: Profile Picture Upload
+* Deskripsi: Fungsionalitas untuk memungkinkan pengguna mengunggah gambar profil.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /profile/upload-picture
+   * Method: POST
+* Controllers:
+   * File: app/Http/Controllers/UserController.php
+   * Method: uploadProfilePicture (Menangani proses upload gambar profil)
+* Views:
+   * File: resources/views/edit-profile.blade.php
+   * Deskripsi: Berisi formulir atau elemen untuk mengunggah gambar profil.
+* Models:
+   * File: User.php
+   * Deskripsi: Model yang bertanggung jawab untuk menyimpan path/nama file gambar profil di database.
+* Migrations:
+   * File: database/migrations/2025_03_21_151002_add_profile_picture_to_users_table.php
+   * Tabel: users
+   * Kolom: profile_picture
+PBI-002C: User Ranking & Achievement
+* Deskripsi: Fungsionalitas untuk menampilkan peringkat pengguna dan pencapaian yang telah diraih.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /rankings
+   * Method: GET
+   * Endpoint: /achievements
+   * Method: GET
+* Controllers:
+   * File: app/Http/Controllers/UserController.php
+   * Method: rankings (Menampilkan peringkat pengguna)
+   * File: app/Http/Controllers/AchievementController.php
+   * Method: index (Menampilkan pencapaian pengguna)
+* Views:
+   * File: resources/views/rankings.blade.php (Diasumsikan)
+   * Deskripsi: Halaman untuk menampilkan daftar peringkat pengguna.
+   * File: resources/views/achievements.blade.php (Diasumsikan)
+   * Deskripsi: Halaman untuk menampilkan daftar pencapaian pengguna.
+* Models:
+   * File: User.php
+   * Deskripsi: Model yang menangani data peringkat pengguna (misalnya, kolom points).
+   * File: Achievement.php
+   * Deskripsi: Model yang menangani data pencapaian.
+* Migrations:
+   * File: database/migrations/2025_03_21_170000_create_achievements_table.php
+   * Tabel: achievements
+   * Kolom: id, name, description, image, created_at, updated_at
+   * File: database/migrations/2025_03_21_151003_add_points_to_users_table.php
+   * Tabel: users
+   * Kolom: points
+PBI-002D: Account Deactivation
+* Deskripsi: Fungsionalitas untuk memungkinkan pengguna menonaktifkan akun mereka.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /profile/deactivate
+   * Method: POST
+* Controllers:
+   * File: app/Http/Controllers/UserController.php
+   * Method: deactivateAccount (Menangani proses deaktivasi akun)
+* Views:
+   * File: resources/views/edit-profile.blade.php
+   * Deskripsi: Berisi tombol atau formulir untuk inisiasi proses deaktivasi akun.
+* Models:
+   * File: User.php
+   * Deskripsi: Model yang bertanggung jawab untuk memperbarui status akun (misalnya, menambahkan kolom status).
+* Migrations:
+   * File: database/migrations/0001_01_01_000000_create_users_table.php
+   * Tabel: users
+   * Kolom: status (Diasumsikan digunakan untuk melacak akun aktif/tidak aktif)
+PBI-003A: Menampilkan Daftar Artikel
+* Deskripsi: Fungsionalitas untuk menampilkan daftar artikel berita.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /econews
+   * Method: GET
+* Controllers:
+   * File: app/Http/Controllers/NewsController.php
+   * Method: index (Menangani pengambilan dan menampilkan daftar artikel berita)
+* Views:
+   * File: resources/views/econews.blade.php
+   * Deskripsi: Menampilkan daftar artikel berita, kemungkinan dengan fitur paginasi, kategori, dan tag.
+* Models:
+   * File: News.php
+   * Deskripsi: Model yang menangani data artikel berita.
+* Migrations:
+   * File: database/migrations/2025_03_21_015610_create_news_table.php
+   * Tabel: news
+   * Kolom: id, title, body, image, published_at, author_id, created_at, updated_at
+PBI-003B: Halaman Detail Berita
+* Deskripsi: Fungsionalitas untuk menampilkan detail lengkap dari sebuah artikel berita.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /econews/{id}
+   * Method: GET
+* Controllers:
+   * File: app/Http/Controllers/NewsController.php
+   * Method: show (Menangani pengambilan dan menampilkan detail artikel berita spesifik)
+* Views:
+   * File: resources/views/econews-detail.blade.php
+   * Deskripsi: Menampilkan konten lengkap dari sebuah artikel berita.
+* Models:
+   * File: News.php
+   * Deskripsi: Model yang menangani data artikel berita.
+PBI-003C: Kategori Berita
+* Deskripsi: Fungsionalitas untuk menampilkan artikel berita berdasarkan kategori tertentu.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /econews/category/{id}
+   * Method: GET
+* Controllers:
+   * File: app/Http/Controllers/EcoNewsController.php
+   * Method: filterByCategory (Menangani filtering artikel berita berdasarkan kategori)
+* Views:
+   * File: resources/views/econews.blade.php
+   * Deskripsi: Menampilkan daftar artikel berita yang telah difilter berdasarkan kategori yang dipilih.
+* Models:
+   * File: Category.php
+   * Deskripsi: Model yang menangani data kategori.
+   * File: News.php
+   * Deskripsi: Model yang menangani data berita.
+* Migrations:
+   * File: database/migrations/2025_03_21_015615_create_categories_table.php
+   * Tabel: categories
+   * Kolom: id, name, created_at, updated_at
+   * File: database/migrations/2025_03_21_015618_create_news_category_table.php
+   * Tabel: news_category (Tabel pivot untuk relasi many-to-many antara berita dan kategori)
+   * Kolom: news_id, category_id
+PBI-004A: Penjadwalan Pengambilan Sampah
+* Deskripsi: Fungsionalitas untuk memungkinkan pengguna menjadwalkan pengambilan sampah daur ulang.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /ecocycle/store
+   * Method: POST
+* Controllers:
+   * File: app/Http/Controllers/EcoCycleController.php
+   * Method: store (Menangani proses penjadwalan pengambilan sampah)
+* Views:
+   * File: resources/views/ecocycle-home.blade.php
+   * Deskripsi: Berisi formulir untuk menjadwalkan pengambilan sampah, termasuk field untuk tanggal, waktu, dan alamat.
+* Models:
+   * File: EcoCycle.php
+   * Deskripsi: Model yang menangani data terkait siklus daur ulang (permintaan pengambilan).
+* Migrations:
+   * File: database/migrations/2025_03_21_160244_create_eco_cycles_table.php
+   * Tabel: eco_cycles
+   * Kolom: id, kategori_sampah, berat, alamat, vendor_id, deskripsi, foto, jadwal_pengambilan, status, created_at, updated_at
+   * File: database/migrations/2025_03_22_185929_add_jadwal_pengambilan_to_eco_cycles_table.php
+   * Deskripsi: Menambahkan kolom jadwal_pengambilan ke tabel eco_cycles.
+PBI-004B: Pemilihan Jenis Sampah
+* Deskripsi: Fungsionalitas untuk memungkinkan pengguna memilih jenis sampah yang akan didaur ulang.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /ecocycle/store
+   * Method: POST
+* Controllers:
+   * File: app/Http/Controllers/EcoCycleController.php
+   * Method: store (Menangani proses pemilihan jenis sampah sebagai bagian dari penjadwalan)
+* Views:
+   * File: resources/views/ecocycle-home.blade.php
+   * Deskripsi: Berisi menu dropdown atau elemen lain untuk memilih jenis sampah (misalnya, plastik, kertas, logam, organik).
+* Models:
+   * File: EcoCycle.php
+   * Deskripsi: Model yang menangani data terkait siklus daur ulang.
+PBI-004C: Riwayat Daur Ulang (untuk Pengguna)
+* Deskripsi: Fungsionalitas untuk menampilkan riwayat permintaan daur ulang yang diajukan oleh pengguna.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /ecocycle
+   * Method: GET
+* Controllers:
+   * File: app/Http/Controllers/EcoCycleController.php
+   * Method: index (Menampilkan riwayat permintaan daur ulang pengguna)
+* Views:
+   * File: resources/views/ecocycle-home.blade.php
+   * Deskripsi: Menampilkan daftar permintaan daur ulang pengguna beserta detail seperti jenis sampah, berat, dan status.
+* Models:
+   * File: EcoCycle.php
+   * Deskripsi: Model yang menangani data terkait siklus daur ulang.
+PBI-004D: Notifikasi Status Pengambilan
+* Deskripsi: Fungsionalitas untuk memberi notifikasi kepada pengguna mengenai status permintaan pengambilan sampah mereka.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /notifications/read/{id}
+   * Method: GET (Menandai notifikasi spesifik sebagai sudah dibaca)
+   * Endpoint: /notifications/mark-all-as-read
+   * Method: GET (Menandai semua notifikasi sebagai sudah dibaca)
+* Controllers:
+   * File: app/Http/Controllers/NotificationController.php
+   * Method: markAsRead
+   * Method: markAllAsRead
+* Views:
+   * Deskripsi: Diasumsikan notifikasi ditampilkan dalam dropdown atau bagian khusus di tata letak aplikasi.
+* Models:
+   * File: app/Models/Notification.php (Diasumsikan berdasarkan sistem notifikasi Laravel)
+   * Deskripsi: Model yang menangani data notifikasi.
+* Migrations:
+   * File: database/migrations/2025_03_22_025504_create_notifications_table.php
+   * Tabel: notifications
+   * Kolom: id, type, notifiable_type, notifiable_id, data, read_at, created_at, updated_at
+PBI-005A: Menampilkan Daftar Permintaan Daur Ulang (untuk Vendor)
+* Deskripsi: Fungsionalitas bagi vendor untuk melihat daftar permintaan daur ulang yang masuk.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /vendor/ecocycle (Diasumsikan)
+   * Method: GET
+* Controllers:
+   * File: app/Http/Controllers/EcoCycleController.php
+   * Method: indexForVendor (Menangani pengambilan dan menampilkan daftar permintaan daur ulang untuk vendor)
+* Views:
+   * File: resources/views/vendor-PengajuanDaurUlang.blade.php
+   * Deskripsi: Menampilkan daftar permintaan daur ulang dengan detail seperti jenis sampah, berat, alamat, nama pemohon, dan jadwal pengambilan.
+* Models:
+   * File: EcoCycle.php
+   * Deskripsi: Model yang menangani data terkait siklus daur ulang.
+* Migrations:
+   * File: database/migrations/2025_03_21_160244_create_eco_cycles_table.php
+   * Tabel: eco_cycles
+   * Kolom: id, kategori_sampah, berat, alamat, vendor_id, deskripsi, foto, jadwal_pengambilan, status, created_at, updated_at
+PBI-005B: Mengelola Status Permintaan Daur Ulang (untuk Vendor)
+* Deskripsi: Fungsionalitas bagi vendor untuk memperbarui status permintaan daur ulang (misalnya, menerima, menolak, selesai).
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /vendor/ecocycle/update/{id}
+   * Method: PUT
+* Controllers:
+   * File: app/Http/Controllers/EcoCycleController.php
+   * Method: update (Menangani update status permintaan daur ulang)
+* Views:
+   * File: resources/views/vendor-PengajuanDaurUlang.blade.php
+   * Deskripsi: Berisi tombol atau opsi untuk menyetujui atau menolak permintaan.
+* Models:
+   * File: EcoCycle.php
+   * Deskripsi: Model yang menangani data terkait siklus daur ulang.
+PBI-005C: Menampilkan Daftar Riwayat Daur Ulang (untuk Vendor)
+* Deskripsi: Fungsionalitas bagi vendor untuk melihat riwayat permintaan daur ulang yang telah mereka tangani.
+* Routes:
+   * File: routes/web.php
+   * Endpoint: /vendor/ecocycle/history (Diasumsikan)
+   * Method: GET
+* Controllers:
+   * File: app/Http/Controllers/EcoCycleController.php
+   * Method: historyForVendor (Menangani pengambilan dan menampilkan riwayat permintaan daur ulang untuk vendor)
+* Views:
+   * File: resources/views/vendor-PengajuanDaurUlang.blade.php
+   * Deskripsi: Menampilkan riwayat permintaan daur ulang dengan detail seperti jenis sampah, berat, alamat, pemohon, status, dan tanggal.
+* Models:
+   * File: EcoCycle.php
+   * Deskripsi: Model yang menangani data terkait siklus daur ulang.
