@@ -108,46 +108,62 @@
 
 <script>
     document.getElementById('confirmSubmit').addEventListener('click', function() {
-        const form = document.getElementById('ecocycleForm');
-        const formData = new FormData(form);
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
-            const statusMessage = document.getElementById('statusMessage');
-
-            if (data.success) {
-                statusMessage.textContent = 'Pengajuan berhasil diajukan!';
-                statusModal.show();
-
-                // Redirect to nearestecohub after modal is shown
-                statusModal._element.addEventListener('hidden.bs.modal', function () {
-                    window.location.href = "{{ route('nearestecohub') }}";
-                });
-            } else {
-                statusMessage.textContent = 'Pengajuan gagal. Silakan coba lagi.';
-                statusModal.show();
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
-            const statusMessage = document.getElementById('statusMessage');
-            statusMessage.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
-            statusModal.show();
-        });
+        // Instead of submitting the form directly, trigger the AJAX submission
+        submitFormWithAjax();
     });
+
+    function submitFormWithAjax() {
+        var formData = new FormData(document.getElementById('ecocycleForm'));
+        
+        $.ajax({
+            type: 'POST',
+            url: $('#ecocycleForm').attr('action'),
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                if (response.success) {
+                    // Hide confirmation modal
+                    $('#confirmationModal').modal('hide');
+                    
+                    // Show success message in status modal
+                    const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+                    const statusMessage = document.getElementById('statusMessage');
+                    statusMessage.textContent = 'Pengajuan berhasil diajukan!';
+                    statusModal.show();
+                    
+                    // Clear the form
+                    $('#ecocycleForm')[0].reset();
+                    
+                    // Redirect after modal is shown
+                    statusModal._element.addEventListener('hidden.bs.modal', function () {
+                        window.location.href = "{{ route('nearestecohub') }}";
+                    });
+                }
+            },
+            error: function(xhr) {
+                // Hide confirmation modal
+                $('#confirmationModal').modal('hide');
+                
+                let errorMessage = 'Terjadi kesalahan saat memproses pengajuan Anda.';
+                
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    errorMessage = '';
+                    $.each(xhr.responseJSON.errors, function(key, value) {
+                        errorMessage += value + ' ';
+                    });
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                
+                // Show error message in status modal
+                const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+                const statusMessage = document.getElementById('statusMessage');
+                statusMessage.textContent = errorMessage;
+                statusModal.show();
+            }
+        });
+    }
 </script>
 @endsection
